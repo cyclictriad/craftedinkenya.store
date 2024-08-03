@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /users/
+Disallow:/complete-order/
+
+Allow: /
+
+Sitemap:https://www.craftedinkenya.store/sitemap.xml
