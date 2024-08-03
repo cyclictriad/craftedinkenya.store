@@ -1,0 +1,12 @@
+{
+    "rewrites":[
+        {
+            "source":"/api/(.*)",
+            "destination":"https://craftedinkenya-store-backend.onrender.com/api/"
+        },
+        {
+            "source":"/(.*)",
+            "destination":"/index.html"
+        }
+    ]
+}
