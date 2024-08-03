@@ -1,0 +1,12 @@
+{
+    "rewrites":[
+        {
+            "source":"/api/(.*)",
+            "destination":"https://craftedinkenya.app"
+        },
+        {
+            "source":"/(.*)",
+            "destination":"/index.html"
+        }
+    ]
+}
