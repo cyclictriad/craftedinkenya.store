@@ -36,9 +36,9 @@ if (localStorage.getItem("accessToken")) {
   store.dispatch("refreshToken");
 }
 
-onMounted(()=>SocketioService.setupSocketConnection());
+// onMounted(()=>SocketioService.setupSocketConnection());
 
-onBeforeUnmount(()=>SocketioService.disconnect());
+// onBeforeUnmount(()=>SocketioService.disconnect());
 </script>
 
 
