@@ -2,7 +2,7 @@
     "rewrites": [
         {
             "source": "/api/(.*)",
-            "destination": "https://craftedinkenya-store-backend.onrender.com/api/$1"
+            "destination": "https://craftedinkenya-store-backend-o5kylxs6w-simon-mwangis-projects.vercel.app/api/$1"
         },
         {
             "source": "/(.*)",

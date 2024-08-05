@@ -24,7 +24,7 @@
             :key="location"
             :value="location"
           >
-            {{ location }}
+            {{ location.name }}
           </option>
         </select>
       </div>
