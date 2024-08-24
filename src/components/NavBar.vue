@@ -40,6 +40,11 @@
               >Home</router-link
             >
           </li>
+
+          <div
+            class="spinner-border spinner-border-sm my-auto mx-2"
+            v-if="!categories.length"
+          ></div>
           <li class="nav-item" v-for="tab in categories" :key="tab._id">
             <router-link
               :to="`/store?tab=${tab.category}`"
@@ -58,8 +63,17 @@
       <div class="d-flex align-items-center">
         <!-- Icon links -->
         <router-link to="/customer-care" class="nav-link mx-2 mx-md-2 mx-lg-1"
-          ><i class="bi bi-chat-dots"></i
-        ></router-link>
+          ><i class="bi  position-relative"
+          :class="{'fs-5 bi-chat-square-fill': newMessages > 0 , 'bi-chat-square-dots': !newMessages }">
+            <small
+            v-if="newMessages"
+              class="position-absolute start-0 top-0"
+              :class="{'ms-1' : newMessages < 10, 'text-light' :  newMessages > 0 }"
+              style="top: 0; font-size: small"
+              >{{ newMessages }}</small
+            ></i
+          ></router-link
+        >
         <auth-button></auth-button>
         <cart-icon></cart-icon>
 
@@ -67,6 +81,7 @@
         <button
           class="navbar-toggler btn border-0"
           type="button"
+          style="outline: none; border: none"
           data-bs-toggle="collapse"
           data-bs-target="#searchForm"
           aria-controls="searchForm"
@@ -120,8 +135,10 @@
 import axios from "axios";
 import { computed, defineAsyncComponent, ref, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useStore } from "vuex";
 const route = useRoute();
 const router = useRouter();
+const store = useStore();
 const AuthButton = defineAsyncComponent({
   loader: () => import("./AuthButton.vue"),
 });
@@ -141,7 +158,7 @@ const search = function () {
     ? router.replace(`/search?query=${query.value}`)
     : router.replace(`/store`);
 };
-const categories = ref("");
+const categories = ref([]);
 const isAuth = computed(() => route.fullPath === "/auth");
 const fetchDeliveryLocations = async function () {
   try {
@@ -161,4 +178,16 @@ const fetchCategories = async function () {
 watchEffect(() => isAuth.value);
 fetchDeliveryLocations();
 fetchCategories();
+const newMessages = computed(() => store.getters.GET_UNREAD.filter(message => message.from !== 'self').length);
 </script>
+
+<style scoped>
+@media (max-width: 750px) {
+  .navbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+  }
+}
+</style>

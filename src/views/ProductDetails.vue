@@ -1,7 +1,7 @@
 <template>
-  <div v-if="product" class="container-fluid text-center">
-    <div class="row w-100 py-3 px-2">
-      <div class="product-header w-100 px-2">
+  <div v-if="product" class="container-fluid text-center p-0">
+    <div class="row w-100 px-2 m-0">
+      <div class="product-header w-100 px-2 sticky-top bg-body-tertiary m-0" style="opacity: 0.95;">
         <button @click="$router.back()" class="btn btn-outline-danger my-auto">
           <i class="bi bi-arrow-left"></i>
           <span class="mx-2 d-none d-md-inline-block">Back to Store</span>
@@ -26,18 +26,16 @@
           :key="index"
           class="card-img flex-column"
           style="justify-content: space-between"
+          
         >
-          <img
-            :src="url"
-            class="rounded w-100 img-thumbnail"
-            :alt="product.name"
-            style="width: auto; height: auto"
-          />
+        <div class="img" :style="{backgroundImage:`url(${url})`}">
+
+        </div>
           <p class="fw-bolder text-center">{{ label }}</p>
         </div>
       </div>
       <div class="product-info col-md-10 m-0">
-        <img :src="currentURL" class="img rounded my-2" :alt="product.name" />
+        <img :src="currentURL"  class="img rounded my-2" :alt="product.name" />
 
         <h5 class="mt-3 mb-2 fw-bold">Product Description</h5>
         <p class="mb-2" :innerHTML="product.description"></p>
@@ -119,13 +117,6 @@
         </div>
       </div>
     </div>
-    <router-link
-      :to="`/customer-care?pId=${product._id}`"
-      class="btn btn-primary shadow-lg m-2 position-fixed end-0 top-50"
-    >
-      <span class="d-none d-md-inline-block"> Chat Seller </span>
-      <i class="bi bi-chat-dots mx-2"></i>
-    </router-link>
     <product-reviews :product="product"
       >Customer reviews on {{ product.name }}</product-reviews
     >
@@ -146,7 +137,6 @@
 
 
 <script setup>
-import { getImageUrl } from "../assets";
 import { ref, computed, watch, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
@@ -270,6 +260,9 @@ watch(() => props.id, fetchProduct);
 onMounted(fetchProduct);
 </script>
 <style scoped>
+.row{
+  margin:0
+}
 .quantity button {
   width: 30px;
   height: 30px;
@@ -292,14 +285,20 @@ onMounted(fetchProduct);
   align-content: center;
   flex-direction: row;
 }
+.card-img .img{
+  height:100px;
+  width: 100px;
+  background-size: cover;
+  background-repeat: none;
+}
 @media (max-width: 768px) {
   .product-image {
     display: flex;
     flex-direction: row;
   }
   .product-image .card-img {
-    width: 33%;
-    height: auto;
+    width: 100px;
+    height: 100px;
     margin: 0 5px;
   }
   .product-info .img {

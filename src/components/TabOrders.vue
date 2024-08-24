@@ -50,8 +50,8 @@
         <td>{{ order.orderId }}</td>
         <td>{{ order.name }}</td>
         <td>{{ order.quantity }}</td>
-        <td>{{ order.totalPrice }}</td>
-        <td>{{ order.orderDate }}</td>
+        <td>{{ order.quantity * order.unitPrice }}</td>
+        <td>{{ moment(order.orderDate).format('DD-MMM-YYYY') }}</td>
       </tr>
     </tbody>
   </table>
@@ -60,6 +60,7 @@
 
 <script setup>
 import axios from "axios";
+import moment from "moment";
 import { computed, ref, watch } from "vue";
 import { useStore } from "vuex";
 const store = useStore();

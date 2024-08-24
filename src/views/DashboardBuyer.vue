@@ -2,11 +2,14 @@
 <script setup>
 import { formatDate } from "../Mixins";
 import axios from "axios";
-import { computed, ref, watch } from "vue";
+import { defineAsyncComponent, ref, watch } from "vue";
 import { useStore } from "vuex";
 const orders = ref(null);
 const store = useStore();
-const user = computed(() => store.getters.GET_USER);
+const AddressForm = defineAsyncComponent({
+  loader: () => import("../components/FormAddress.vue"),
+});
+const BASE_API_URL = import.meta.env.VITE_APP_BASE_API_URL;
 
 const imageSelector = ref(null);
 const sendOTP = ref(false);
@@ -71,14 +74,7 @@ const status = ref({
   },
 });
 
-const address_input = ref({
-  name: "",
-  street: "",
-  city: "",
-  state: "",
-  postalcode: "",
-  country: "",
-});
+const shippingAddress = ref({});
 const payment_input = ref({});
 const uploadImage = async function () {
   try {
@@ -201,18 +197,18 @@ const deleteUser = async function () {
   status.value.deleteUser.loading = false;
 };
 const pushAddress = async function () {
-  if (address_input.value.edit) {
-    if (Object.values(address_input.value).some((value) => !value)) return;
+  if (shippingAddress.value.edit) {
+    if (Object.values(shippingAddress.value).some((value) => !value)) return;
     try {
       status.value.address.failed = false;
       status.value.address.loading = true;
-      await axios.patch(`auth/profile`, { address: address_input.value });
+      await axios.patch(`auth/profile`, { address: shippingAddress.value });
     } catch (error) {
       status.value.address.failed = true;
     }
     status.value.address.loading = false;
   }
-  address_input.value.edit = !address_input.value.edit;
+  shippingAddress.value.edit = !shippingAddress.value.edit;
 };
 const popAddress = async function (id) {
   try {
@@ -358,7 +354,7 @@ fetchReviews();
                   backgroundImage: `url(${
                     (status.avatar.loading && status.avatar.url) ||
                     profile.avatar
-                })`,
+                  })`,
                 }"
               >
                 <div
@@ -394,6 +390,7 @@ fetchReviews();
               <button type="button" @click="logout" class="m-2 btn btn-danger">
                 Logout
               </button>
+              <router-link to="/store" class="m-2 btn btn-outline-primary">Shop</router-link>
               <p class="text-muted font-decoration-italic">
                 Used for display in reviews take a look at our privacy policy
                 <router-link to="/faqs">here</router-link>.
@@ -532,86 +529,11 @@ fetchReviews();
                   <i class="bi bi-trash"></i>
                 </button>
               </div>
-              <form
-                id="addressForm"
-                v-if="address_input.edit"
-                @submit.prevent="pushAddress"
-              >
-                <div class="col-auto">
-                  <label for="name" class="form-label">Name</label>
-                  <input
-                    v-model="address_input.name"
-                    type="text"
-                    class="form-control"
-                    id="name"
-                    placeholder="John Doe"
-                    required
-                    aria-required="true"
-                  />
-                </div>
-                <div class="col-auto">
-                  <label for="street" class="form-label">Street</label>
-                  <input
-                    v-model="address_input.street"
-                    type="text"
-                    class="form-control"
-                    id="street"
-                    placeholder="123, test road"
-                    required
-                    aria-required="true"
-                  />
-                </div>
-                <div class="col-auto">
-                  <label for="city" class="form-label">City</label>
-                  <input
-                    v-model="address_input.city"
-                    type="text"
-                    class="form-control"
-                    id="city"
-                    placeholder="New York"
-                    required
-                    aria-required="true"
-                  />
-                </div>
-                <div class="col-auto">
-                  <label for="state" class="form-label">State</label>
-                  <input
-                    v-model="address_input.state"
-                    type="text"
-                    class="form-control"
-                    id="state"
-                    placeholder="New York or NY"
-                    required
-                    aria-required="true"
-                  />
-                </div>
-                <div class="col-auto">
-                  <label for="postal-code" class="form-label"
-                    >Postal Code</label
-                  >
-                  <input
-                    v-model="address_input.postalcode"
-                    type="text"
-                    class="form-control"
-                    id="postal-code"
-                    placeholder="12345"
-                    required
-                    aria-required="true"
-                  />
-                </div>
-                <div class="col-auto">
-                  <label for="country" class="form-label">Country</label>
-                  <input
-                    v-model="address_input.country"
-                    type="text"
-                    class="form-control"
-                    id="country"
-                    placeholder="United States or US"
-                    required
-                    aria-required="true"
-                  />
-                </div>
-              </form>
+
+              <address-form
+                v-if="shippingAddress.edit"
+                :address="shippingAddress"
+              ></address-form>
               <button
                 @click="pushAddress"
                 class="btn border-2 fw-bolder p-1 d-flex justify-content-center align-items-center"
@@ -666,13 +588,10 @@ fetchReviews();
                   />
                   <label for="paypal" class="form-check-label">Paypal</label>
                 </div>
-                <div v-if="card" class="stripe">
-
-                </div>
+                <div v-if="card" class="stripe"></div>
                 <div v-if="paypal" class="paypal">
-                  <input type="email" class="form-control" >
+                  <input type="email" class="form-control" />
                 </div>
-                
               </form>
               <button
                 @click="payment_input.edit = !payment_input.edit"
@@ -707,6 +626,8 @@ fetchReviews();
                   name="password"
                   id="password"
                   class="form-control"
+                  placeholder="Enter your password to continue"
+                  aria-placeholder="Enter your password to continue"
                   required
                   aria-required="true"
                 />
@@ -762,8 +683,9 @@ fetchReviews();
                   {{ formatDate(order.createdAt) }}
                 </p>
                 <a
-                  :href="`http://localhost:3004/orders/${order._id}/pdf`"
+                  :href="`${BASE_API_URL}/orders/${order._id}/pdf`"
                   class="btn btn-primary"
+                  
                   >Download <i class="bi bi-file-pdf"></i
                 ></a>
               </li>
@@ -925,7 +847,7 @@ export default {
 .card {
   margin-bottom: 1rem;
 }
-.avatar-container{
+.avatar-container {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

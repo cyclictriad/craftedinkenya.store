@@ -1,7 +1,6 @@
 <template>
-  <!-- Modal -->
   <div
-    class="modal fade"
+    class="modal fade text-center"
     id="checkOut"
     data-bs-backdrop="static"
     data-bs-keyboard="false"
@@ -47,46 +46,92 @@
                 </tr>
               </tbody>
             </table>
-            
-            <form
-              class="mx-auto"
-              @submit.prevent="checkOut"
-            >
+            <h6 class="my-3 text-start">Shipping address Information</h6>
+            <address-form
+              :address="shippingAddress"
+              :errors="addressErrors"
+            ></address-form>
+
+            <form class="mx-auto" @submit.prevent="checkOut">
+              
               <div class="my-5 form-floating">
                 <select
-                  v-model="checkoutInfo.mode"
+                  v-model="paymentMethod"
                   name=""
                   id="modeOfPayment"
                   class="form-select pt-4"
                 >
-                  <option value="paypal" class="p-2">
-                    <span>Paypal</span>
-                    <span class="text-muted"> powered by </span>
-                    <i class="bi bi-paypal"></i>
+                  <option class="p-2" value="" selected>
+                    Choose payment method
                   </option>
-                  <option value="other" class="p-2">
-                    <span>Other</span>
-                    <span class="text-muted"> powered by </span>
-                    <i class="bi bi-stripe"></i>
+                  <option value="card" class="p-2">Credit/Debit card</option>
+                  <option value="paypal" class="p-2">Paypal</option>
+                  <option value="apple" class="p-2">Apple Pay</option>
+                  <option value="google" class="p-2">Google Pay</option>
+                  <option value="bnpl" class="p-2">
+                    Buy Now Pay Later (BNPL)
                   </option>
                 </select>
-                <label for="modeOfPayment">Payment Method</label>
+                <label for="modeOfPayment"
+                  >Payment Method <sup class="text-danger mt-2"> * </sup></label
+                >
               </div>
-
-              <button class="m-3 btn rounded-pill py-2 px-5"
-              :class="paymentStatus.isFailed && 'btn-danger' || 'btn-success'"
-              :innerHTML=" paymentStatus.isLoading ? `
-              <div class='spinner-border spinner-border-sm' role='status'>
-              <span class='visually-hidden'>Loading...</span>
-              </div>` : paymentStatus.isFailed  ? `<span>Payment failed <i class='bi bi-exclamation-circle-fill'> </i><span>` : `Pay ${totalBill}`
-"
+              <div class="my-5 form-floating">
+                <select
+                  v-model="poweredBy"
+                  name="service_provider"
+                  id="service-provider"
+                  class="form-select pt-4"
+                >
+                  <option class="p-2" value="" selected>
+                    Choose your preffered payment provider
+                  </option>
+                  <option value="stripe" class="p-2">Stripe</option>
+                  <option value="paypal" class="p-2">Paypal</option>
+                </select>
+                <label for="service-provider">Service Provider</label>
+              </div>
+              <div
+                v-for="(error, index) in errors"
+                :key="index"
               >
+              <div class="my-2 bg-danger-subtle text-start px-2 py-1" :innerHTML = "` <i class='bi bi-x-circle-fill text-danger mx-2'></i>
+                <span> ${error.error}</span>`">
+
+              </div>
+              <div class="my-2 bg-success-subtle text-start px-2 py-1" :innerHTML = "` <i class='bi bi-lightbulb text-warning mx-2'></i>
+                <span> ${error.tip}</span>`">
+
+              </div>
+               
+              </div>
+              <button
+                class="m-3 btn rounded-pill py-2 px-5"
+                :class="{
+                  'btn-danger': status.failed,
+                  'btn-success': !status.failed,
+                }"
+                :disabled="status.loading"
+                :aria-disabled="status.loading"
+              >
+                <div
+                  v-if="status.loading"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                >
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <span v-else-if="status.failed"
+                  >Payment failed <i class="bi bi-exclamation-circle-fill"></i
+                ></span>
+
+
+                <span v-else>Pay ${{ totalBill }}</span>
               </button>
             </form>
 
             <PaymentIcons />
           </div>
-          <div v-else>Nothing to see here</div>
         </div>
         <div class="modal-footer">
           <button
@@ -103,77 +148,63 @@
 </template>
 
 <script setup>
-import axios from 'axios'
-import {defineAsyncComponent, ref} from 'vue'
-import {useStore} from 'vuex'
+import axios from "axios";
+import { defineAsyncComponent, ref, watch } from "vue";
+import { useStore } from "vuex";
+const AddressForm = defineAsyncComponent({
+  loader: () => import("./FormAddress.vue"),
+});
 const PaymentIcons = defineAsyncComponent({
-  loader:()=> import('./IconPayment.vue')
-})
-
-const store = useStore()
-
-const cartItems = ref(store.state.cart.cartItems)
-const totalBill = ref(store.getters.totalBill)
-
-const checkoutInfo = ref({
-  cartItems:cartItems.value.map(({id, quantity})=>{
-    return {id, quantity}
-  }),
-  mode:'paypal'
-})
-
-const checkOut = async()=>{
-  paymentStatus.value.isFailed = false
-  paymentStatus.value.isLoading = true
-  try{
- const {data} = await axios.post(`orders/create-order`, checkoutInfo.value);
- const {url} = data;
- window.location.href = url
-  }catch(error){
-    paymentStatus.value.isLoading = false
-    paymentStatus.value.isFailed = true
+  loader: () => import("./IconPayment.vue"),
+});
+const store = useStore();
+const cartItems = ref(store.state.cart.cartItems);
+const shippingAddress = ref({});
+const poweredBy = ref("");
+const paymentMethod = ref("");
+const totalBill = ref(store.getters.totalBill);
+const errors = ref([]);
+const addressErrors = ref("");
+const checkOut = async () => {
+  status.value.failed = false;
+  status.value.loading = true;
+  try {
+    console.log({shippingAddress:shippingAddress.value})
+    const { data } = await axios.post(`orders/create-order`, {
+      cartItems: cartItems.value.map(({ id, quantity }) => ({ id, quantity })),
+      shippingAddress: shippingAddress.value,
+      poweredBy: poweredBy.value,
+      paymentMethod: paymentMethod.value,
+    });
+    const { url } = data;
+    window.location.href = url;
+  } catch (error) {
+    if (error && error.response) {
+      const {data} =  error.response
+      errors.value = data.errors;
+      if(data.addressErrors) addressErrors.value = data.addressErrors 
+      else addressErrors.value = "";
+      
+    }
+    status.value.failed = true;
   }
-}
+  status.value.loading = false;
+};
 
-const paymentStatus = ref({
-  isLoading:false,
-  isFailed:false
+const status = ref({
+  loading: false,
+  failed: false,
+});
+
+watch(paymentMethod, function(){
+    if(paymentMethod.value === 'paypal'){
+      poweredBy.value = 'paypal'
+    }else{
+      poweredBy.value = 'stripe'
+    }
+  
 })
-
-
-
-</script>
-
-<script defer>
-console.log(' I am defered ')
 </script>
 
 <style>
-.isLoading{
-  width:20px;
-  height:20px;
-  border-width: 3px 0px;
-  border-color:  #f3f3f3;
-  border-style: solid;
-  border-radius:50%;
-  animation:load infinite 1s ease-in-out;
-  
-}
-@keyframes load{
- 0%{
-  transform: rotate(0deg);
- }
- 15%{
-  transform: rotate(90deg);
- }
- 35%{
-  transform: rotate(180deg);
- }
- 70%{
-  transform: rotate(270deg);
- }
- 100%{
-  transform: rotate(360deg);
- }
-}
 </style>

@@ -1,7 +1,6 @@
 
 import { createRouter, createWebHistory } from 'vue-router'
-// import { useStore } from 'vuex'
-// const store = useStore()
+import store from '../store'
 const configMeta = {
     prefetch:true,
     cache:true
@@ -41,7 +40,7 @@ const merchantRoutes = (prefix) => [
         }
     },
     {
-        path:"customer-inquiries",
+        path:"inbox",
         name:`${prefix}TabInquiries`,
         component:()=>import('../components/TabCustomerInquiries.vue'),
         meta:{
@@ -98,7 +97,7 @@ const routes = [
                 component: () => import('../components/ProductSearch.vue'),
             },
             {
-                path: 'auth',
+                path: 'auth/:action',
                 name: 'auth',
                 component: () => import('../components/AuthPage.vue'),
                 meta:{
@@ -107,6 +106,12 @@ const routes = [
             }
 
         ]
+    },
+    {
+        path: '/returns-and-exchanges',
+        name: 'rma',
+        component: () => import('../views/ReturnMerchandise.vue'),
+        props:true
     },
     {
         path: '/store/products/:id',
@@ -174,6 +179,14 @@ const router = createRouter({
         return {top:0, behavior:'smooth'}
     }
 })
+
+// router.beforeEach((to, from , next)=>{
+//     const {role}  = store.getters.GET_USER ||{}
+//     if(!to.fullPath.includes(role) && to.fullPath.includes('admin') || to.fullPath.includes('seller'))  return
+//     else next();
+//     // next()
+    
+// })
 
 
 export default router;

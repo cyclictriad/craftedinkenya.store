@@ -12,7 +12,7 @@
         class="d-flex flex-column align-items-center nav-brand my-4 w-100 justify-content-center"
       >
         <i class="bi bi-speedometer2 fs-3 text-danger me-2"></i>
-        <strong class="fs-4 text-danger">{{fullName}}</strong>
+        <strong class="fs-4 text-danger">{{ fullName }}</strong>
       </div>
       <nav class="w-100" role="navigation">
         <div class="nav flex-column" id="nav-tab" role="tablist">
@@ -25,12 +25,13 @@
             class="my-2 w-100 text-center text-md-start mx-0 text-wrap m-1"
             :class="[
               'nav-link',
+              { disabled: index && !hasShop  },
               { 'fw-bolder text-danger': tabs.index === index },
             ]"
             :aria-selected="tabs.index === index"
           >
             <i class="bi px-1" :class="item.icon"></i>
-            <span>{{ item.label }}</span>
+            <span>{{ item.label  }}  <small v-if="item.icon === 'bi-chat-square'">({{newMessagesCount}})</small></span>
           </router-link>
           <button @click="logout" class="nav-link fw-bolder mt-5 text-danger">
             <span>Log Out </span>
@@ -65,12 +66,15 @@
 
 
 <script setup>
-import {computed, ref } from "vue";
+import { computed, onBeforeUnmount, ref } from "vue";
 import { useStore } from "vuex";
 const store = useStore();
+const chat = computed(()=>store.getters.GET_CHAT);
+const hasShop = computed(() => store.getters.GET_USER?.shops?.length);
 const tabs = ref({
   index: 0,
 });
+const newMessagesCount = computed(() => store.getters.GET_UNREAD.filter(message => message.from === 'self').length);
 const isExpanded = ref(true);
 const navItems = ref([
   {
@@ -104,9 +108,9 @@ const navItems = ref([
     path: "return-orders",
   },
   {
-    label: "Customer Inquiries",
-    icon: "bi-headset",
-    path: "customer-inquiries",
+    label: `Inbox`,
+    icon: "bi-chat-square",
+    path: "inbox",
   },
   {
     label: "Store Manager",
@@ -115,10 +119,15 @@ const navItems = ref([
   },
 ]);
 const activeTab = ref(navItems.value[tabs.value.index].label);
-const fullName = computed(()=>store.getters.GET_USER?.fullName)
+const fullName = computed(() => store.getters.GET_USER?.fullName);
 const logout = () => {
   store.dispatch("logout");
 };
+
+store.dispatch('startService')
+
+// });
+onBeforeUnmount(() => service.value.disconnect());
 </script>
 
 

@@ -19,7 +19,6 @@ export default {
         },
         async logout(state) {
             try {
-
                 await axios.post(`auth/logout`, { accessToken: localStorage.getItem('accessToken') }, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('accessToken')}`
@@ -28,9 +27,7 @@ export default {
                 state.user = null
                 localStorage.removeItem('accessToken')
             }
-            catch (error) {
-                alert(error)
-            }
+            catch (error) {}
         },
 
     },

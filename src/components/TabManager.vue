@@ -2,27 +2,7 @@
   <div class="row">
     <h5 class="fw-bolder">Profile Information</h5>
 
-    <div v-if="profile" class="form-floating input-group my-5">
-      <input v-model="profile.address" type="text" class="form-control" />
-      <span class="input-group-text">
-        <i class="bi bi-house"></i>
-      </span>
-      <label for="address">Address</label>
-    </div>
-    <div class="my-2 d-flex justify-content-space-between col-md-6 mx-auto">
-      <img
-        :src="getImageUrl(`logo.png`)"
-        class="rounded-circle"
-        style="max-height: 30vh"
-      />
-
-      <div class="position-relative w-25">
-        <button class="btn btn-success position-absolute top-50 text-nowrap">
-          Change Logo
-          <i class="bi bi-cloud-arrow-up-fill"></i>
-        </button>
-      </div>
-    </div>
+    
     <div class="col-md-9 mx-auto mb-2">
       <h5 class="text-start text-danger">Ad manager</h5>
       <div v-if="ads.existing && ads.existing.length" class="ads">
@@ -64,6 +44,13 @@
       <div class="col-md-9 mx-auto my-3">
         <h5>Social links</h5>
         <form v-if="profile" @submit.prevent="postProfile">
+          <div v-if="profile" class="form-floating input-group my-5">
+      <input v-model="profile.address" type="text" class="form-control" />
+      <span class="input-group-text">
+        <i class="bi bi-house"></i>
+      </span>
+      <label for="address">Address</label>
+    </div>
           <div class="form-floating my-5 input-group">
             <input
               v-model="profile.email"

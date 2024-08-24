@@ -3,7 +3,7 @@
     <ul class="list-inline social-icons">
         <h5 class="mb-3">Follow Us</h5>
         <li class="list-inline-item"><a href="#"><i class="bi bi-facebook"></i></a></li>
-        <li class="list-inline-item"><a href="#"><i class="bi bi-twitter"></i></a></li>
+        <li class="list-inline-item"><a href="#"><i class="bi bi-twitter-x"></i></a></li>
         <li class="list-inline-item"><a href="#"><i class="bi bi-instagram"></i></a></li>
         <li class="list-inline-item"><a href="#"><i class="bi bi-youtube"></i></a></li>
         <li class="list-inline-item"><a href="#"><i class="bi bi-pinterest"></i></a></li>

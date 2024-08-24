@@ -48,7 +48,7 @@
           <h5 class="mb-3">Customer Happiness</h5>
           <ul class="list-unstyled">
             <li><a href="#">Track your Order</a></li>
-            <li><a href="/faqs?target=returns">Returns & Exchanges</a></li>
+            <li><a href="/returns-and-exchanges">Returns & Exchanges</a></li>
             <li><a href="/faqs?target=privacy">Privacy Policy</a></li>
             <li><a href="/customer-care">Contact Us</a></li>
             <li><a href="#">Accessibility</a></li>
@@ -137,5 +137,6 @@ requestIdleCallback(fetchProfile);
   max-width: 150px; /* Adjust the maximum width as needed */
   height: auto; /* Allow the height to adjust proportionally */
 }
+
 </style>
   

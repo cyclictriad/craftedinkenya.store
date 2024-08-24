@@ -1,0 +1,44 @@
+<? xml version="1.0" encoding="UTF-8" ?>
+
+<urlset xmlns="http://www.sitemaps.org/schema/0.9" >
+<!--store home page-->
+<url>
+<loc>https://www.craftedinkenya.store/store</loc>
+<lastmod>2024-08-09</lastmod>
+<changefreq>daily</changefreq>
+<priority>1.0</priority>
+</url>
+
+<!--Product search page-->
+<url>
+<loc>https://www.craftedinkenya.store/search</loc>
+<lastmod>2024-08-09</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+
+<!--Auth pages (login/signup)-->
+<loc>https://www.craftedinkenya.store/auth</loc>
+<lastmod>2024-08-09</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+<!--FAQ page-->
+<url>
+<loc>https://www.craftedinkenya.store/faqs</loc>
+<lastmod>2024-08-09</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+<!--Customer care page-->
+<url>
+<loc>https://www.craftedinkenya.store/customer-care</loc>
+<lastmod>2024-08-09</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+</urlset>

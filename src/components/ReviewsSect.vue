@@ -1,9 +1,9 @@
 <template>
-  <div class="row p-0">
+  <div class="row w-100 p-0 mt-4 ">
     <h5 class="section-title">
       <slot></slot>
     </h5>
-    <div v-if="reviews.length && product" class="rating-summary">
+    <div v-if="reviews.length && product" class="rating-summary col-12">
       <div class="rating-overview">
         <p>Product Ratings</p>
         <hr />
@@ -32,7 +32,7 @@
               100
             "
           ></progress>
-          <span class="star-percentage">
+          <span class=" star-percentage">
             {{
               Math.round(
                 (reviews.filter((review) => review.stars === stars).length /
@@ -50,7 +50,7 @@
 
     <div
       v-if="reviews.length"
-      class="col-12 col-md-9 mx-auto carousel slide carousel-fade"
+      class="col-12 col-md-6 mx-auto carousel slide "
       id="reviewsCarousel"
       data-bs-ride="true"
     >
@@ -127,7 +127,6 @@
 </template>
 
 <script setup>
-import { getImageUrl } from "../assets";
 import { formatDate } from "../Mixins";
 import { ref, computed, watch, onMounted } from "vue";
 import axios from "axios";
@@ -140,17 +139,10 @@ const props = defineProps({
   },
 });
 
-const store = useStore();
-
 // Reactive state
 const reviews = ref([]);
 const starRating = ref(0);
 const comment = ref("");
-
-// Computed properties
-const name = computed(() => {
-  return store.getters.GET_USER?.fullName;
-});
 
 const url = computed(() => {
   return props.product ? `reviews?pId=${props.product._id}` : `reviews`;
@@ -164,8 +156,7 @@ const fetchReviews = async () => {
 const postReview = async () => {
   await axios.post(url.value, {
     stars: starRating.value,
-    comment: comment.value,
-    name: name.value,
+    comment: comment.value
   });
 
   alert("Review added successfully.\n Thanks for your feedback.");

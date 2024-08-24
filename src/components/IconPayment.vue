@@ -1,12 +1,11 @@
 <template>
-    
     <ul class="list-inline payment-icons">
       <h5 class="mb-3 text-md-right">We Accept</h5>
-        <li class="list-inline-item"><i class="bi bi-unionpay"></i></li>
-        <li class="list-inline-item"><i class="bi bi-apple"></i></li>
+        <li class="list-inline-item"><i class="bi bi-credit-card"></i></li>
         <li class="list-inline-item"><i class="bi bi-paypal"></i></li>
-        <li class="list-inline-item"><i class="bi bi-afterpay"></i></li>
+        <li class="list-inline-item"><i class="bi bi-apple"></i></li>
         <li class="list-inline-item"><i class="bi bi-google"></i></li>
+        <li class="list-inline-item"><i class="bi bi-afterpay"></i></li>
     </ul>
 </template>
 

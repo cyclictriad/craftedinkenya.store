@@ -1,7 +1,8 @@
 User-agent: *
-Disallow: /admin/
 Disallow: /users/
-Disallow:/complete-order/
+Disallow: /admin/
+Disallow: /seller/
+Disallow: /complete-order/
 
 Allow: /
 

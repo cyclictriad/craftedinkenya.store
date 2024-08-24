@@ -207,7 +207,7 @@
     </div>
     <button
       type="submit"
-      class="btn rounded-0 my-2"
+      class="btn rounded-0 my-2 mx-auto"
       :class="{
         'rounded-circle disabled p-3': status.submit.loading,
         'btn-danger': status.submit.failed,

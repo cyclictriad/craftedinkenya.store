@@ -7,9 +7,9 @@
       "
       style="height: inherit"
     >
-      <div
+    <div
         role="banner"
-        class="d-flex align-items-center nav-brand my-4 w-100 justify-content-center"
+        class="d-flex flex-column align-items-center nav-brand my-4 w-100 justify-content-center"
       >
         <i class="bi bi-speedometer2 fs-3 text-danger me-2"></i>
         <strong class="fs-4 text-danger">{{fullName}}</strong>
@@ -25,8 +25,10 @@
             class="my-2 w-100 text-center text-md-start mx-0 text-wrap m-1"
             :class="[
               'nav-link',
+              {'disabled':index && !hasShop},
               { 'fw-bolder text-danger': tabs.index === index },
             ]"
+            
             :aria-selected="tabs.index === index"
           >
             <i class="bi px-1" :class="item.icon"></i>
@@ -69,6 +71,7 @@ import { computed, ref } from "vue";
 import { useStore } from "vuex/dist/vuex.cjs.js";
 
 const store = useStore();
+const hasShop = computed(()=> store.getters.GET_USER?.shops?.length)
 const tabs = ref({
   index: 0,
 });

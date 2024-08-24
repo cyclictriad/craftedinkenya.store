@@ -1,36 +1,50 @@
 <template>
   <div>
     <div class="d-lg-none fixed-bottom">
-      <div class="bg-body-tertiary collapse shadow-lg" id="categories" >
+      <div class="bg-body-tertiary collapse shadow-lg" id="categories">
         <ul class="list-group">
-          <li  v-for="tab in categories" :key="tab._id" class="list-group-item">
-           <router-link @click="hideToggle()"  class="nav-link" :to="`/store?tab=${tab.category}`">{{ tab.category }}</router-link>
+          <li v-for="tab in categories" :key="tab._id" class="list-group-item">
+            <router-link
+              @click="hideToggle()"
+              class="nav-link"
+              :to="`/store?tab=${tab.category}`"
+              >{{ tab.category }}</router-link
+            >
           </li>
         </ul>
       </div>
-      <div class="container-fluid d-flex justify-content-around bg-dark text-white py-2" data-bs-theme="dark">
-        <router-link  to="/store" class="nav-link">Home <i class="bi bi-house"></i></router-link>
-        <a class="nav-link categories-collapse" data-bs-toggle="collapse" data-bs-target="#categories" aria-expanded="false" aria-controls="categories">Categories <i class="bi bi-boxes"></i></a>
-        <router-link to="/faqs" class="nav-link">Faqs <i class="bi bi-file-earmark-text"></i></router-link>
+      <div
+        class="container-fluid d-flex justify-content-around bg-dark text-white py-3 fs-5"
+        data-bs-theme="dark"
+      >
+        <router-link to="/store" class="nav-link"
+          ><span class="visually-hidden">Home</span> <i class="bi bi-house"></i
+        ></router-link>
+        <a
+          class="nav-link categories-collapse position-relative"
+          data-bs-toggle="collapse"
+          data-bs-target="#categories"
+          aria-expanded="false"
+          aria-controls="categories"
+          ><span class="visually-hidden">Categories</span>
+          <i class="bi bi-grid"></i>
+          <span
+            class="position-absolute badge translate-middle"
+            style="font-size: 20px; left: calc(100% + 10px); top: -8px"
+            >{{ categories?.length }}</span
+          >
+        </a>
+
+        <CartIcon></CartIcon>
       </div>
     </div>
 
-    <div class="tab-content" id="pills-tabContent">
-      <div v-if="!activeTab" class="tab-pane fade show active" role="tabpanel">
-        <IndexPage> </IndexPage>
-      </div>
-      <div
-        v-for="(tab, index) in categories"
-        :key="index"
-        v-else
-        class="tab-pane fade"
-        :class="{ 'show active': activeTab === tab.category }"
-        :id="'pills-' + tab.category"
-        role="tabpanel"
-      >
-        <div class="container-fluid">
-          <product-section :products="tab.products"></product-section>
-        </div>
+    <div v-if="!activeTab" class="tab-pane fade show active" role="tabpanel">
+      <IndexPage> </IndexPage>
+    </div>
+    <div v-else class="tab-pane fade show active" role="tabpanel">
+      <div class="container-fluid">
+        <product-section :products="products"></product-section>
       </div>
     </div>
   </div>
@@ -38,16 +52,18 @@
 <script setup>
 import { useHead } from "@vueuse/head";
 
-import { ref, computed, watch, onMounted, watchEffect } from "vue";
+import { ref, computed, watch, defineAsyncComponent, onBeforeMount } from "vue";
 import IndexPage from "./TabIndex.vue";
 import axios from "axios";
-import { useStore } from "vuex";
+const CartIcon = defineAsyncComponent({
+  loader: () => import("./IconCart.vue"),
+});
 
 import ProductSection from "./ProductSection.vue";
 import { useRoute } from "vue-router";
 const route = useRoute();
 const activeTab = computed(() => route.query.tab);
-
+const products = ref([]);
 useHead({
   title: "Main Store",
   meta: [
@@ -58,39 +74,28 @@ useHead({
   ],
 });
 
-const hideToggle = function(){
-  const toggleElement = document.getElementById('categories')
-  if(toggleElement){
-    toggleElement.classList.add('hide')
-    toggleElement.classList.remove('show')
+const hideToggle = function () {
+  const toggleElement = document.getElementById("categories");
+  if (toggleElement) {
+    toggleElement.classList.add("hide");
+    toggleElement.classList.remove("show");
   }
-}
+};
 const categories = ref([]);
 const allProducts = ref(null);
 
 const fetchProducts = async () => {
   if (allProducts.value) {
-    const tabIndex = categories.value.findIndex(
-      (tab) => tab.category === activeTab.value
+    products.value = allProducts.value.filter(
+      (product) => product.category === activeTab.value
     );
-    if (tabIndex !== -1) {
-      categories.value[tabIndex].products = allProducts.value.filter(
-        (product) => product.category === activeTab.value
-      );
-    }
   } else {
     try {
       const url = activeTab.value
         ? `products?category=${activeTab.value}`
         : `products`;
-      const response = await axios(url);
-      const { data } = response;
-      const tabIndex = categories.value.findIndex(
-        (tab) => tab.category === activeTab.value
-      );
-      if (tabIndex !== -1) {
-        categories.value[tabIndex].products = data;
-      }
+      const { data } = await axios(url);
+      products.value = data;
     } catch (error) {
       console.error("Error fetching products:", error);
     }
@@ -117,9 +122,12 @@ watch(activeTab, fetchProducts);
 // onMounted(() => {
 
 fetchCategories();
-if (activeTab.value) {
-  fetchProducts();
-}
+
+onBeforeMount(async () => {
+  if (activeTab.value) {
+    await fetchProducts();
+  }
+});
 
 // });
 </script>

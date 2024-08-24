@@ -16,7 +16,14 @@
         Remove
       </button>
     </div>
-    <div class="form col-md-6 mx-auto mt-3">
+    <div v-if="!categories.length" class="text-center">
+      <div v-if="status.loading" class="spinner-border spinner-border-sm">
+        <span class="visually-hidden"></span>
+      </div>
+      Fetching categories
+      
+    </div>
+    <div  class="form col-md-6 mx-auto mt-3">
       <h5 class="fs-4 fw-bold text-center">Add Category</h5>
       <form @submit.prevent="addCategory">
         <div class="d-flex form-floating">

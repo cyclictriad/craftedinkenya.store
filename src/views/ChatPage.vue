@@ -1,268 +1,122 @@
 <template>
-  <div
-    class="d-flex flex-column justify-content-between rol"
-    style="min-height: 100vh"
-  >
-    <div class="row">
-      <button
-        v-if="scrollingDown"
-        @click="scrollToTop"
-        class="btn btn-primary shadow position-fixed end-0 top-50 m-2 z-index-1000"
-        style="width: fit-content"
-      >
-        <i class="bi bi-arrow-up"></i>
-      </button>
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="d-flex justify-content-center align-items-center">
-          <img
-            src="../assets/face1.jpg"
-            alt=""
-            class="d-none d-md-block rounded-circle border border-5 m-3"
-            :class="online ? 'border-success' : 'border-danger'"
-            style="height: 50px"
+  <div v-if="!chat" class="row bg-dark" style="opacity: 0.8; height: 100vh">
+    <div
+      v-if="requireName"
+      class="rounded-4 col-11 col-md-6 m-auto bg-light popup p-5"
+    >
+      <h6 class="fw-bolder mb-3">We'd love to give you professional help</h6>
+      <form @submit.prevent="setName">
+        <div class="mb-2">
+          <input
+            v-model="name"
+            id="name"
+            type="text"
+            class="form-control"
+            placeholder="Enter your name to proceed..."
+            aria-placeholder="Enter your name to proceed to chat"
+            required
+            aria-required="true"
           />
-          <p class="my-auto">
-            <span class="fw-bolder">Admin</span>
-            <br />
-            <span :class="online ? `text-success` : `text-danger`">Online</span>
-          </p>
         </div>
-        <div class="dropdown">
-          <button
-            type="button"
-            id="themesButton"
-            class="btn btn-primary dropdown-toggle"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false"
-          >
-            <span class="d-none d-md-inline-block">Theme</span> <i class="bi bi-gear"></i>
-          </button>
-          <div class="dropdown-menu" aria-labelledby="themesButton">
-            <a href="javascript:void(0)" class="dropdown-item">System</a>
-            <a href="javascript:void(0)" class="dropdown-item">Dark</a>
-            <a href="javascript:void(0)" class="dropdown-item">Light</a>
-            <a href="javascript:void(0)" class="dropdown-item">Dark</a>
-          </div>
-        </div>
-        <div class="btn-group">
-          <button class="btn btn-success m-2" @click="$router.back()">
-             
-            <span class="d-none d-md-inline-block">
-              Close
-            </span>
-            <i class="d-inline-block d-md-none bi bi-arrow-up">
-
-            </i>
-          </button>
-          <button class="btn btn-danger m-2" @click="clearChat()">
-          
-            <span class="d-none d-md-inline-block">
-              New Chat
-            </span>
-            <i class="d-inline-block d-md-none bi bi-pen">
-
-            </i>
-          </button>
-        </div>
-      </div>
-      <hr />
-      <div class="col-auto offset-md-1 alert bg-info-subtle text-start">
-        <p>
-          <i class="bi bi-info-circle-fill px-3"></i> This page is under
-          maintenance
+        <button class="btn btn-primary px-2 rounded-0">Proceed</button>
+      </form>
+    </div>
+    <div
+      v-if="joinedWaitingRoom"
+      class="rounded-4 col-11 col-md-6 m-auto bg-light py-2 px-5"
+    >
+      <div class="m-2">
+        <h5 class="other-text">YOU ARE NOW IN WAITING ROOM</h5>
+        <p class="text-end">
+          Number on queue | <strong>{{ 0 }}</strong>
         </p>
-        <p>
-          <i class="bi bi-info-circle-fill px-3"></i>It may take a while before
-          getting a reply
+        <p class="text-muted">
+          Don't understand why this happened click
+          <strong
+            href="javascript:void(0)"
+            class="toggle"
+            data-bs-toggle="collapse"
+            data-bs-target="#waiting-collapse"
+            >here</strong
+          >
         </p>
-        <p><i class="bi bi-info-circle-fill px-3"></i>Kindly bear with us</p>
       </div>
-
-      <div v-for="chat in chats" :key="chat._id">
-        <div
-          v-if="chat.inquiry"
-          class="rounded-2 col-lg-3 col-md-5 col-sm-8 offset-lg-8 offset-md-6 offset-sm-3 bg-body-secondary my-2"
-          :class="{ waiting: chat.pId && !chat.answer }"
-        >
-          <div
-            v-if="chat.pId && !chat.answer"
-            class="text-start px-2 bg-info text-white fd-italic"
-          >
-            <i class="bi bi-info-square-fill"></i>
-            This may take some time to reply
-          </div>
-          <div class="p-0">
-            <p class="text-start text-wrap px-4">
-              {{ chat.inquiry }}
-            </p>
-          </div>
-
-          <div class="d-flex justify-content-between p-0 text-italic">
-            <p class="px-2" style="font-style: italic">
-              <span v-if="chat.pId"> -to seller</span>
-              <span v-else>-to admin </span>
-            </p>
-            <button @click="deleteChat(chat._id)" class="btn btn-transparent">
-              delete
-            </button>
-          </div>
-        </div>
-        <div
-          v-if="chat.answer"
-          class="d-flex justify-content-start my-2"
-          style="z-index: -100"
-        >
-          <img
-            src="../assets/face2.jpg"
-            alt=""
-            class="d-none d-lg-inline-block rounded-circle my-1 ms-1 me-3"
-            height="50"
-            style="border: solid 5px #0101b9"
-          />
-
-          <div
-            class="chat left d-inline-flex col-12 col-lg-3 col-md-4 col-sm-8 text-white fw-bolder my-auto"
-          >
-            <p class="message text-start text-wrap px-4 py-2 my-auto">
-              {{ chat.answer }}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div
-        v-if="status.messages.loading"
-        class="d-flex justify-content-center align-items-center text-secondary"
-      >
-        <div class="spinner-border spinner-border-sm mx-2"></div>
-        <p class="my-auto">Fetching your messages</p>
-      </div>
-      <p v-else-if="status.messages.failed" class="text-center text-danger">
-        <i class="bi bi-exclamation-circle-fill mx-2"></i> Error occured while
-        fetching your messages
-      </p>
-      <div
-        v-if="
-          !chats.length && !status.messages.loading && !status.messages.failed
-        "
-      >
-        New messages go here...
+      <div id="waiting-collapse" class="collapse mx-1">
+        <p>
+          Dear esteemed customer our customer service is based on sessions, to
+          offer bespoke service to our esteemed customers.
+        </p>
+        <p>Our agents are available right now but they are engaged for now.</p>
+        <p>We'll get back to you soon.</p>
+        <p>You are now in waiting room</p>
       </div>
     </div>
-    <form
-      id="form"
-      @submit.prevent="postMessage"
-      class="col-12 col-sm-10 col-md-9 mx-auto d-flex"
+    <div
+      v-if="notAvailable"
+      class="popup rounded-4 col-11 col-md-6 m-auto bg-light p-5"
     >
-      <input
-        style="border-radius: 10px 0 0 10px"
-        v-model="details.inquiry"
-        class="form-control border border-success"
-        placeholder="Hey, I would like to know..."
-        autofocus
-      />
-      <button
-        class="btn"
-        :class="{
-          'disabled rounded-circle': status.send.loading,
-          'btn-danger': status.send.failed,
-          'btn-success': !status.send.loading || !status.send.failed,
-        }"
-        style="transition: border 500s ease; border-radius: 0 10px 10px 0"
-      >
-        <div
-          v-if="status.send.loading"
-          class="spinner-border spinner-border-sm"
+      <p class="text-danger">No agent available at the moment.</p>
+      <form class="d-flex flex-column">
+        <textarea
+          class="form-control mb-2"
+          name="inquiry"
+          id="inquiry"
+          cols="50"
+          rows="10"
+          placeholder="I'd love to know"
         >
-          <span class="visually-hidden">Loading</span>
-        </div>
-        <p class="my-auto text-nowrap" v-else-if="status.send.failed">
-          <i class="bi bi-exclamation-circle-fill px-2"></i>
-          <span class="d-none d-md-inline-block">Failed</span>
-        </p>
-        <span v-else>Send</span>
-      </button>
-    </form>
+        </textarea>
+        <button type="submit" class="btn btn-outline-primary">
+          Send Email
+        </button>
+      </form>
+    </div>
   </div>
+  <chat-body v-else></chat-body>
 </template>
 
 <script setup>
 import { useHead } from "@vueuse/head";
-import axios from "axios";
-import { computed, onUnmounted, ref } from "vue";
-import { useRoute } from "vue-router";
-const route = useRoute();
-const online = ref(false)
-const details = computed(() => {
-  return {
-    inquiry: "",
-    cId: localStorage.getItem("sId"),
-    pId: route.query.pId,
-  };
+import { computed, defineAsyncComponent, ref } from "vue";
+import { useStore } from "vuex";
+const store = useStore();
+const service = ref(store.getters.GET_SERVICE);
+
+const chatBody = defineAsyncComponent({
+  loader: () => import(`../components/ChatBody.vue`),
 });
-const chats = ref([]);
-const status = ref({
-  messages: {
-    loading: false,
-    failed: false,
-  },
-  send: {
-    loading: false,
-    failed: false,
-  },
-});
-const scrollingDown = ref(false);
-const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
-const loadChat = async function () {
-  status.value.messages.failed = false;
-  status.value.messages.loading = true;
-  axios(`inquiry/${details.value.cId}`)
-    .then((data) => {
-      chats.value = data.data;
-    })
-    .catch((error) => {
-      status.value.messages.failed = true;
-    })
-    .finally(() => {
-      status.value.messages.loading = false;
-      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    });
+
+const requireName = ref(false);
+const joinedWaitingRoom = ref(false);
+const notAvailable = ref(false);
+const chat = computed(() => store.getters.GET_CHAT);
+
+const name = ref(null);
+
+const setName = function () {
+  service.value.emit("set-name", name.value);
+  requireName.value = false;
 };
-const postMessage = async function () {
-  if (!details.value.inquiry) return;
-  try {
-    status.value.send.failed = false;
-    status.value.send.loading = true;
-    await axios.post(`inquiry`, details.value);
-    loadChat();
-  } catch (error) {
-    status.value.send.failed = true;
-  }
-  status.value.send.loading = false;
-};
-const deleteChat = async function (id) {
-  try {
-    await axios.delete(`inquiry/${details.value.cId}?id=${id}`);
-    loadChat();
-  } catch (error) {}
-};
-const clearChat = async function () {
-  try {
-    await axios.delete(`inquiry/${details.value.cId}`);
-    localStorage.removeItem("sId");
-    location.reload();
-  } catch (error) {}
-};
-if (!localStorage.getItem("sId")) {
-  localStorage.setItem("sId", Date.now());
-} else {
-  loadChat();
+const isConnected = computed(() => store.getters.GET_CONNECTION);
+if (!isConnected.value) {
+  store.dispatch("startService");
 }
+
+service.value.on("require-name", () => {
+  requireName.value = true;
+});
+service.value.on("joined-waiting", () => {
+  joinedWaitingRoom.value = true;
+});
+service.value.on("not-available", () => {
+  chat.value = null;
+  notAvailable.value = true;
+});
+
 window.onscroll = function () {
   scrollingDown.value = this.oldScroll - this.scrollY;
   this.oldScroll = this.scrollY;
 };
-
 
 useHead({
   title: `Customer Care`,
@@ -333,19 +187,29 @@ useHead({
     { rel: "manifest", href: "/site.webmanifest" },
   ],
 });
+
 </script>
 
 <style scoped>
-.chat {
-  position: relative;
+.popup {
+  animation: bounceIn 3s ease-in-out;
 }
-.message {
-  padding: 0px 12px 0px 12px;
-}
-.left {
-  min-height: 55px;
-  border-radius: 0px 10px 10px 10px;
-  background-color: #0101b9;
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>
 
