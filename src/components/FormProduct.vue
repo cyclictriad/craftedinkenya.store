@@ -1,7 +1,7 @@
 <template>
   <form
     @submit.prevent="postProduct"
-    class="px-2 col-lg-10 border"
+    class="px-2 col-lg-10 border text-center"
     :class="{ 'border-success rounded-0 px-5': !product }"
   >
     <div class="d-flex">
