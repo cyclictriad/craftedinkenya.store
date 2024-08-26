@@ -1,9 +1,9 @@
 <template>
   <div class="container-fluid p-0.5">
-    <product-section :products="products.bestSelling">
+    <product-section :status="status" :products="products.bestSelling">
       Best selling products
     </product-section>
-    <product-section :products="products.discounted">
+    <product-section :status="status" :products="products.discounted">
       Deals and discounts
     </product-section>
     <Reviews></Reviews>
@@ -19,6 +19,10 @@ const Reviews = defineAsyncComponent({
 });
 
 const allProducts = ref([]);
+const status = ref({
+  failed: false,
+  loading: false,
+});
 
 const products = computed(() => {
   return {
@@ -36,15 +40,17 @@ const products = computed(() => {
 
 const fetchProducts = async function () {
   try {
+    status.value.failed = false;
+    status.value.loading = true;
     allProducts.value = (await axios(`products`)).data;
   } catch (error) {
     console.error(error);
+    status.value.failed = true;
   }
+  status.value.loading = false
 };
 
 fetchProducts();
-</script>
-<script>
 </script>
 
 <style scoped>

@@ -44,7 +44,7 @@
         </div>
       </div>
     </div>
-    <div v-else-if="!reviews.length">
+    <div v-else-if="!reviews.length && product">
       <p>Be the first to comment on this product...</p>
     </div>
 
@@ -130,7 +130,6 @@
 import { formatDate } from "../Mixins";
 import { ref, computed, watch, onMounted } from "vue";
 import axios from "axios";
-import { useStore } from "vuex";
 
 const props = defineProps({
   product: {

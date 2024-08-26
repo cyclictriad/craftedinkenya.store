@@ -10,12 +10,11 @@ class SocketioService {
             }
         }
         const currentRoute = router.currentRoute.value.fullPath
-        if(!currentRoute.startsWith('/admin') && !currentRoute.startsWith('/seller')){
+        if (!currentRoute.startsWith('/admin') && !currentRoute.startsWith('/seller')) {
             config.query = {
-                client:true
+                client: true
             }
-        }       
-
+        }
         this.socket = io('https://craftedinkenya-store-backend.onrender.com', config);
         this.socket.on('connect_error', (error) => {
             console.error('Connection error:', error);
