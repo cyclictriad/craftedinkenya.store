@@ -77,20 +77,20 @@
                   class="form-control text-center"
                 >
                   <option
-                    value="approved"
-                    :selected="product.status === 'approved'"
+                    value="Approved"
+                    :selected="product.status === 'Approved'"
                   >
                     Approved
                   </option>
                   <option
-                    value="pending"
-                    :selected="product.status === 'pending'"
+                    value="Pending"
+                    :selected="product.status === 'Pending'"
                   >
                     Pending
                   </option>
                   <option
-                    value="flagged"
-                    :selected="product.status === 'flagged'"
+                    value="Flagged"
+                    :selected="product.status === 'Flagged'"
                   >
                     Flagged
                   </option>
@@ -103,18 +103,8 @@
     </section>
 
     <p v-else-if="query" class="text-center fs-4 text-dark">
-      No results for your query
+      No results for "{{query}}"
     </p>
-    <!-- <p
-      v-else
-      class="alert alert-danger alert-dismissible fade show d-flex fs-4 bg-danger-subtle py-3 px-2"
-      role="alert"
-      style="justify-content: space-between"
-    >
-      <i class="bi bi-exclamation-triangle"></i>
-      <span>No products to display...</span>
-      <button type="button" data-bs-dismiss="alert" aria-label="close"></button>
-    </p> -->
     <div v-if="status.loading" class="d-flex justify-content-center align-items-center text-success">
       <div class="spinner-border spinner-border-sm mx-2"></div>
 
