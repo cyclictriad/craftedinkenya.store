@@ -44,12 +44,16 @@
     </div>
     <div v-else class="tab-pane fade show active" role="tabpanel">
       <div class="container-fluid">
-        <product-section :products="products"></product-section>
+        <product-section :products="products" :status="status" :label="activeTab"></product-section>
       </div>
     </div>
   </div>
 </template>
 <script setup>
+const status = ref({
+  loading:false,
+  failed:false
+})
 import { useHead } from "@vueuse/head";
 
 import { ref, computed, watch, defineAsyncComponent, onBeforeMount } from "vue";
@@ -85,6 +89,8 @@ const categories = ref([]);
 const allProducts = ref(null);
 
 const fetchProducts = async () => {
+  status.value.failed = false
+  status.value.loading = true
   if (allProducts.value) {
     products.value = allProducts.value.filter(
       (product) => product.category === activeTab.value
@@ -97,9 +103,12 @@ const fetchProducts = async () => {
       const { data } = await axios(url);
       products.value = data;
     } catch (error) {
+      status.value.failed = true
       console.error("Error fetching products:", error);
     }
   }
+  status.value.loading = false
+
 };
 
 const fetchCategories = async () => {

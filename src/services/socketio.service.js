@@ -1,3 +1,6 @@
+const ENV = import.meta.env.MODE
+
+
 import { io } from 'socket.io-client';
 import router from '../routes'
 class SocketioService {
@@ -15,7 +18,7 @@ class SocketioService {
                 client: true
             }
         }
-        this.socket = io('https://craftedinkenya-store-backend.onrender.com', config);
+        this.socket = io(ENV === 'production' ?  'https://craftedinkenya-store-backend.onrender.com' : 'http://localhost:3000', config);
         this.socket.on('connect_error', (error) => {
             console.error('Connection error:', error);
         });

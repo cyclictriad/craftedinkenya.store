@@ -1,140 +1,96 @@
 <template>
-  <div v-if="product" class="container-fluid text-center p-0">
-    <div class="row w-100 px-2 m-0">
-      <div class="product-header w-100 px-2 sticky-top bg-body-tertiary m-0" style="opacity: 0.95;">
-        <button @click="$router.back()" class="btn btn-outline-danger my-auto">
+  <div v-if="product" class="container-fluid text-center py-4 px-0 bg-light">
+    <div class="row w-100 m-0">
+      <!-- Header -->
+      <div class="product-header w-100 sticky-top bg-white shadow-sm py-3 px-4 d-flex align-items-center justify-content-between">
+        <button @click="$router.back()" class="btn btn-outline-danger d-flex align-items-center gap-2">
           <i class="bi bi-arrow-left"></i>
-          <span class="mx-2 d-none d-md-inline-block">Back to Store</span>
+          <span class="d-none d-md-inline">Back to Store</span>
         </button>
-        <h4 class="my-auto fw-bolder">{{ product.name }}</h4>
-        <button @click="addToWishList" class="btn btn-outline-success my-auto">
-          <span class="mx-2 d-none d-md-inline-block">Add to Wishlist</span>
+        <h4 class="my-auto fw-bold text-truncate">{{ product.name }}</h4>
+        <button @click="addToWishList" class="btn btn-outline-success d-flex align-items-center gap-2">
+          <span class="d-none d-md-inline">Add to Wishlist</span>
           <i class="bi bi-bag-heart"></i>
         </button>
       </div>
 
-      <div
-        class="product-image col-md-2 px-4"
-        style="height: 20%; overflow-x: auto"
-      >
-        <div class="d-none d-md-block">
-          <h5>Product Images</h5>
-        </div>
+      <!-- Product Images Thumbnails -->
+      <div class="product-image-thumbnails col-md-3 d-flex flex-column align-items-center border-end pt-4 pb-2">
+        <h5 class="mb-3 text-center d-none d-md-block">Product Images</h5>
         <div
-          @click="currentURL = url"
           v-for="({ url, label }, index) in product.images"
           :key="index"
-          class="card-img flex-column"
-          style="justify-content: space-between"
-          
-        >
-        <div class="img" :style="{backgroundImage:`url(${url})`}">
-
-        </div>
-          <p class="fw-bolder text-center">{{ label }}</p>
-        </div>
+          @click="currentURL = url"
+          :class="{ 'selected-thumbnail': currentURL === url }"
+          class="image-thumbnail mb-3"
+          :style="{ backgroundImage: `url(${url})` }"
+        ></div>
       </div>
-      <div class="product-info col-md-10 m-0">
-        <img :src="currentURL"  class="img rounded my-2" :alt="product.name" />
 
-        <h5 class="mt-3 mb-2 fw-bold">Product Description</h5>
-        <p class="mb-2" :innerHTML="product.description"></p>
-        <div class="d-flex flex-column d-md-block" style="height: 15%">
-          <button class="btn btn-warning rounded-pill m-2">
+      <!-- Product Info Section -->
+      <div class="product-info col-md-9 py-4 px-3">
+        <!-- Main Image -->
+        <div class="text-center mb-4">
+          <img :src="currentURL" class="img-fluid rounded product-main-img shadow" :alt="product.name" />
+        </div>
+
+        <!-- Product Description -->
+        <div class="text-start mb-3">
+          <h5 class="fw-bold mb-3">Product Description</h5>
+          <p v-html="product.description" class="text-muted"></p>
+        </div>
+
+        <!-- Price & Budget Controls -->
+        <div class="d-flex flex-wrap align-items-center justify-content-start gap-3 mt-3">
+          <button class="btn btn-warning fw-semibold rounded-pill px-4 py-2 shadow-sm">
             Current Bill ${{ bill.current }}
           </button>
-          <div
-            class="d-md-inline-block"
-            :class="{
-              'border border-2 border-info': budget.exceeded || !budget.isSet,
-            }"
-          >
-            <button
-              @click="setBudget"
-              :class="{ disabled: bill.willBe === bill.current }"
-              class="btn btn-danger rounded-pill m-2 text-wrap"
-              :aria-live="(budget.exceeded && 'assertive') || 'polite'"
-              aria-haspopup="dialog"
-            >
-              <span v-if="!budget.exceeded">Will be ${{ bill.willBe }}</span>
-
-              <span v-else>Budget Exceeded</span>
-            </button>
-          </div>
-          <p
-            aria-live="polite"
-            role="alert"
-            v-if="budget.balance && !budget.exceeded"
-            class="text-muted"
-          >
-            Balance: ${{ budget.balance }}
-          </p>
-          <p aria-live="assertive" v-else class="text-muted">
-            Click here to
-            <span v-if="budget.isSet">update</span>
-            <span v-else>set</span>
-            budget
-          </p>
-        </div>
-        <div
-          class="d-flex justify-content-center align-items-center col-md-4 mx-auto mt-5"
-        >
           <button
-            @click="decrementQuantity"
-            class="text-center btn btn-primary"
-            style="height: 35px; width: 40px; border-radius: 7px 0 0 7px"
+            @click="setBudget"
+            :class="['btn', 'rounded-pill', budget.exceeded ? 'btn-danger' : 'btn-primary', 'px-4', 'py-2', 'shadow-sm']"
           >
-            <span>-</span>
+            <span v-if="!budget.exceeded">Will be ${{ bill.willBe }}</span>
+            <span v-else>Budget Exceeded</span>
           </button>
+          <p v-if="budget.balance && !budget.exceeded" class="text-muted small">Balance: ${{ budget.balance }}</p>
+          <p v-else class="text-muted small">Click to set or update budget</p>
+        </div>
+
+        <!-- Quantity Controls -->
+        <div class="quantity-controls d-flex align-items-center justify-content-center mt-4 gap-2">
+          <button @click="decrementQuantity" class="btn btn-outline-secondary quantity-btn">-</button>
           <input
             v-model="quantity"
-            name="quantity"
-            min="1"
             type="number"
-            class="form-control text-center fw-bolder outline-0"
-            style="height: 35px"
+            min="1"
+            class="form-control text-center fw-bold quantity-input"
           />
-          <button
-            :disabled="budget.exceeded"
-            @click="incrementQuantity"
-            class="btn btn-primary border-0"
-            style="height: 35px; width: 40px; border-radius: 0 7px 7px 0"
-          >
-            +
-          </button>
+          <button @click="incrementQuantity" class="btn btn-outline-secondary quantity-btn">+</button>
         </div>
-        <div style="height: 15%">
-          <button
-            :disabled="!bill.balance"
-            @click="addToCart"
-            class="btn btn-primary rounded-pill mt-4"
-          >
-            <span v-if="bill.balance < 0"> Deduct from Cart</span>
-            <span v-else> Add to Cart </span>
 
-            ${{ Math.abs(bill.balance) }}
-          </button>
-        </div>
+        <!-- Add to Cart Button -->
+        <button
+          @click="addToCart"
+          :disabled="!bill.balance"
+          class="btn btn-primary rounded-pill px-4 py-3 mt-4 w-100 shadow"
+        >
+          <span v-if="bill.balance < 0">Deduct from Cart</span>
+          <span v-else>Add to Cart</span> ${{ Math.abs(bill.balance) }}
+        </button>
       </div>
     </div>
-    <product-reviews :product="product"
-      >Customer reviews on {{ product.name }}</product-reviews
-    >
 
-    <div v-if="similarProducts.length">
-      <h5 class="text-start">More like this</h5>
-
-      <product-card
-        v-for="product in similarProducts"
-        :key="product.id"
-        :product="product"
-      ></product-card>
+    <!-- Similar Products Section -->
+    <div v-if="similarProducts.length" class="similar-products py-4 mt-5 bg-white rounded shadow-sm">
+      <h5 class="text-start px-3 mb-3">More like this</h5>
+      <div class="d-flex flex-wrap justify-content-start px-3 gap-4">
+        <product-card v-for="product in similarProducts" :key="product.id" :product="product" />
+      </div>
     </div>
-    <body-footer></body-footer>
+
+    <body-footer class="mt-5"></body-footer>
   </div>
 </template>
-
-
 
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
@@ -143,92 +99,44 @@ import { useRouter } from "vue-router";
 import { defineAsyncComponent } from "vue";
 import axios from "axios";
 
-// Define async components
-const ProductReviews = defineAsyncComponent(() =>
-  import("../components/ReviewsSect.vue")
-);
-const ProductCard = defineAsyncComponent(() =>
-  import("../components/ProductCard.vue")
-);
-const BodyFooter = defineAsyncComponent(() =>
-  import("../components/FooterComponent.vue")
-);
+const ProductReviews = defineAsyncComponent(() => import("../components/ReviewsSect.vue"));
+const ProductCard = defineAsyncComponent(() => import("../components/ProductCard.vue"));
+const BodyFooter = defineAsyncComponent(() => import("../components/FooterComponent.vue"));
 
-// Define props
-const props = defineProps({
-  id: String,
-});
-
-// Define refs and store
+const props = defineProps({ id: String });
 const store = useStore();
 const router = useRouter();
 const quantity = ref(1);
 const product = ref(null);
 const currentURL = ref("");
 
-// Computed properties
-const similarProducts = computed(() => {
-  return store.getters.products
-    .filter(
-      (p) =>
-        p.category === product.value?.category && p.id !== product.value?.id
-    )
-    .sort((a, b) => b.sales - a.sales);
-});
+const isInCart = computed(() => store.state.cart.cartItems.find(p => product.value && product.value.id === p.id));
 
-const isInCart = computed(() => {
-  return (
-    product.value &&
-    store.state.cart.cartItems.find((p) => product.value.id === p.id)
-  );
-});
+const similarProducts = computed(() => store.getters.products
+    .filter(p => p.category === product.value?.category && p.id !== product.value?.id)
+    .sort((a, b) => b.sales - a.sales)
+);
 
 const bill = computed(() => {
   const currentBill = store.getters.totalBill;
-  const itemTotal =
-    ((!isInCart.value && quantity.value) ||
-      quantity.value - isInCart.value?.quantity) * product.value?.sp;
-  return {
-    current: currentBill,
-    balance: itemTotal,
-    willBe: currentBill + itemTotal,
-  };
+  const itemTotal = ((!isInCart.value && quantity.value) || quantity.value - isInCart.value?.quantity) * product.value?.sp;
+  return { current: currentBill, balance: itemTotal, willBe: currentBill + itemTotal };
 });
 
 const budget = computed(() => {
   const budget = store.getters.budget;
   const willBe = bill.value.willBe;
-  return {
-    isSet: budget,
-    exceeded: budget && willBe > budget,
-    balance: budget && budget - willBe,
-  };
+  return { isSet: budget, exceeded: budget && willBe > budget, balance: budget && budget - willBe };
 });
 
-// Methods
-const incrementQuantity = () => {
-  quantity.value++;
-};
-
-const decrementQuantity = () => {
-  if (quantity.value > 1) {
-    quantity.value--;
-  }
-};
+const incrementQuantity = () => quantity.value++;
+const decrementQuantity = () => { if (quantity.value > 1) quantity.value--; };
 
 const fetchProduct = async () => {
   const url = `products/${props.id}`;
   const response = await axios(url);
   product.value = response.data;
   currentURL.value = product.value.images[0].url;
-
-  const cartProduct = store.state.cart.cartItems.find(
-    (p) => product.value.id === p.id
-  );
-
-  if (cartProduct) {
-    quantity.value = cartProduct.quantity;
-  }
 };
 
 const addToCart = () => {
@@ -243,71 +151,59 @@ const addToCart = () => {
 
 const setBudget = () => {
   const budget = prompt("Set your budget in dollars");
-  if (budget) {
-    store.dispatch("setBudget", budget);
-  }
+  if (budget) store.dispatch("setBudget", budget);
 };
 
-const addToWishList = async function () {
-  try {
-    await axios.patch(`auth/profile?wishList=${props.id}`)
-  } catch (error) {}
+const addToWishList = async () => {
+  try { await axios.patch(`auth/profile?wishList=${props.id}`); } catch (error) {}
 };
-// Watchers
+
 watch(() => props.id, fetchProduct);
-
-// Lifecycle hooks
 onMounted(fetchProduct);
 </script>
+
 <style scoped>
-.row{
-  margin:0
-}
-.quantity button {
-  width: 30px;
-  height: 30px;
-}
-
-.quantity span {
-  font-size: 18px;
-  font-weight: bold;
-}
-.form-control {
-  outline: none;
-  border-radius: 0;
-}
-
 .product-header {
-  min-height: fit-content;
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-content: center;
-  flex-direction: row;
+  background: #ffffff;
 }
-.card-img .img{
-  height:100px;
-  width: 100px;
+
+.product-image-thumbnails {
+  max-width: 200px;
+  padding: 1rem;
+}
+
+.image-thumbnail {
+  width: 80px;
+  height: 80px;
   background-size: cover;
-  background-repeat: none;
+  background-position: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
-@media (max-width: 768px) {
-  .product-image {
-    display: flex;
-    flex-direction: row;
-  }
-  .product-image .card-img {
-    width: 100px;
-    height: 100px;
-    margin: 0 5px;
-  }
-  .product-info .img {
-    width: 100%;
-  }
+.image-thumbnail:hover {
+  transform: scale(1.1);
 }
-@media (min-width: 768px) {
-  .product-info .img {
-    width: 50%;
-  }
+.selected-thumbnail {
+  border: 2px solid #0d6efd;
+}
+
+.product-main-img {
+  width: 100%;
+  max-width: 600px;
+}
+
+.quantity-controls .quantity-btn {
+  width: 40px;
+  height: 40px;
+}
+
+.quantity-input {
+  width: 60px;
+}
+
+.similar-products {
+  background: #ffffff;
+  border-radius: 8px;
 }
 </style>

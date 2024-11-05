@@ -17,13 +17,16 @@
       </button>
     </div>
     <div v-if="!categories.length" class="text-center">
-      <div v-if="status.loading" class="spinner-border spinner-border-sm">
-        <span class="visually-hidden"></span>
+      <div v-if="status.loading">
+        <div v-if="status.loading" class="spinner-border spinner-border-sm">
+          <span class="visually-hidden"></span>
+        </div>
       </div>
-      Fetching categories
-      
+
+      <p v-else-if="status.failed">Error Fetching categories</p>
+      <p v-else>No Categories yet</p>
     </div>
-    <div  class="form col-md-6 mx-auto mt-3">
+    <div class="form col-md-6 mx-auto mt-3">
       <h5 class="fs-4 fw-bold text-center">Add Category</h5>
       <form @submit.prevent="addCategory">
         <div class="d-flex form-floating">
@@ -61,8 +64,12 @@
 <script setup>
 import axios from "axios";
 import { ref } from "vue";
-const categories = ref(null);
-const category = ref(null);
+const status = ref({
+  loading: false,
+  failed: false,
+});
+const categories = ref([]);
+const category = ref("");
 const categoryExists = ref(false);
 const fetchCategories = async function () {
   try {
@@ -77,11 +84,13 @@ const addCategory = async function () {
   try {
     await axios.post("categories", { category: category.value });
     fetchCategories();
+    category.value = ""
   } catch (error) {
     if (error.response.status === 403) {
       categoryExists.value = true;
     }
   }
+  
 };
 const deleteCategory = async function (id) {
   try {

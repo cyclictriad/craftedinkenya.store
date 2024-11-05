@@ -1,59 +1,181 @@
 <template>
-  <div role="button" class="g-1 g-md-3" :class=" {'col-12 col-sm-6 col-md-4 col-lg-3  ':!discounted, 'col-12 col-sm-6 col-md-4 col-lg-3':discounted}">
-    <div @click="$router.push(`/store/products/${product._id}`) " class="card  shadow-lg" >
-      <img  :src="`${product.images[0].url}`" class="card-img-top" :alt="product.name">
-      <div class="card-body">
-        <h5 class="card-title">{{ product.name }}</h5>
-        <p class="card-text">{{ product.summary }}</p>
-        <div v-if="discounted || bestSelling" class="d-flex justify-content-center text-light" style="font-size:10px">
-          <div v-if="bestSelling" class="bg-warning rounded p-1" > Top Selling <i class="bi bi-tag-fill"></i> </div> <div v-if="discounted" class="bg-success rounded p-1">{{product.discount}}% off <i class="bi bi-tag-fill"></i> </div>
-        </div>
-        <p v-if="!discounted" class="card-text"><strong>Price: ${{ product.sp }}</strong></p>
-
-        <div v-if="discounted" class="d-flex justify-content-center">
-          <div class="text-danger rounded fw-bolder diagonal-strike" > <span class="d-none d-lg-inline-block">Was:</span> ${{ previous }}</div> <div class="rounded m-2 fw-bolder"><span class="d-none d-lg-inline-block">Now:</span> ${{ current }} </div>
+  <div
+    role="button"
+    class="product-card-wrapper"
+  >
+    <div
+      @click="$router.push(`/store/products/${product._id}`)"
+      class="product-card"
+    >
+      <div class="product-image-wrapper">
+        <img
+          :src="product.images[0].url"
+          :alt="product.name"
+          class="product-image"
+        />
+        <div v-if="discounted || bestSelling" class="product-badges">
+          <span v-if="bestSelling" class="badge badge-warning">
+            <i class="bi bi-trophy-fill me-1"></i>Top Selling
+          </span>
+          <span v-if="discounted" class="badge badge-success">
+            <i class="bi bi-tag-fill me-1"></i>{{ product.discount }}% off
+          </span>
         </div>
       </div>
-      <div class="card-footer" >
-        <span class="text-muted">{{ bestSelling ? `${ product.sales} sales` : `A product` }} by <strong>{{ product.shop }}</strong></span>
+
+      <div class="product-content">
+        <h5 class="product-title">{{ product.name }}</h5>
+        <p class="product-summary">{{ product.summary }}</p>
+
+        <div class="product-price">
+          <template v-if="!discounted">
+            <strong>${{ product.sp }}</strong>
+          </template>
+          <template v-else>
+            <div class="price-comparison">
+              <span class="original-price">${{ previous }}</span>
+              <span class="current-price">${{ current }}</span>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <div class="product-footer">
+        <span class="text-muted">
+          {{ bestSelling ? `${product.sales} sales` : "A product" }}
+          by <strong>{{ product.shop }}</strong>
+        </span>
       </div>
     </div>
-
-</div>
+  </div>
 </template>
 
+
 <script setup>
-import {ref} from 'vue';
+import { ref } from "vue";
 const props = defineProps({
-    product: {
-      type: Object,
-      required: true
-    }
-  })
-  const discounted = ref(props.product.discount)
-  const bestSelling = false
-  const previous = ref( ((100 * props.product.sp)/(100-props.product.discount)).toFixed(2))
-  const current = ref(props.product.sp)
+  product: {
+    type: Object,
+    required: true,
+  },
+});
+const discounted = ref(props.product.discount);
+const bestSelling = false;
+const previous = ref(
+  ((100 * props.product.sp) / (100 - props.product.discount)).toFixed(2)
+);
+const current = ref(props.product.sp);
 </script>
 
-
 <style scoped>
-.diagonal-strike {
+.product-card-wrapper {
+  padding: 0.5rem;
+}
+
+.product-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+  height: 100%;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.product-image-wrapper {
   position: relative;
-  display: inline-block;
+  width: 100%;
+  height: 200px; /* Fixed height for images */
+  overflow: hidden;
 }
 
-.diagonal-strike::before {
-  content: '';
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* This ensures images maintain aspect ratio */
+  object-position: center;
+}
+
+.product-badges {
   position: absolute;
-  top: 8px;
-  left: -7px;
-  width: calc(100% + 14px);
-  height: 5px; /* Adjust thickness */
-  opacity:0.6;
-  background: red; 
-  transform: rotate(4deg);
-  transform-origin: top left;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
+.badge {
+  padding: 0.5rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.badge-warning {
+  background-color: #fbbf24;
+  color: #7c2d12;
+}
+
+.badge-success {
+  background-color: #34d399;
+  color: #064e3b;
+}
+
+.product-content {
+  padding: 1.25rem;
+}
+
+.product-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #1f2937;
+}
+
+.product-summary {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.product-price {
+  font-size: 1.25rem;
+  margin: 1rem 0;
+}
+
+.price-comparison {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.original-price {
+  color: #ef4444;
+  text-decoration: line-through;
+  font-size: 1rem;
+  opacity: 0.75;
+}
+
+.current-price {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.product-footer {
+  padding: 1rem 1.25rem;
+  background-color: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.875rem;
+}
 </style>

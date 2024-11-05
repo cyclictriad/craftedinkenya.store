@@ -1,9 +1,10 @@
 <template>
   <div class="container-fluid p-0.5">
-    <product-section :status="status" :products="products.bestSelling">
+    
+    <product-section v-if="products.bestSelling.length" :status="status" :products="products.bestSelling">
       Best selling products
     </product-section>
-    <product-section :status="status" :products="products.discounted">
+    <product-section v-if="products.discounted.length" :status="status" :products="products.discounted">
       Deals and discounts
     </product-section>
     <Reviews></Reviews>
